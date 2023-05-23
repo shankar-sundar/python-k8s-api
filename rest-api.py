@@ -1,4 +1,5 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request 
+import os 
 
 app = Flask(__name__)
 
@@ -63,4 +64,7 @@ def delete_book(id):
         return jsonify({'message': 'Book not found'}), 404
 
 if __name__ == '__main__':
-    app.run()
+    port = os.environ.get('FLASK_PORT') or 8080
+    port = int(port)
+
+    app.run(port=port,host='0.0.0.0')
