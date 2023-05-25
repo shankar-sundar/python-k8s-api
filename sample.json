@@ -1,0 +1,16 @@
+{
+    "ownerId":"0053a00000R6CWi",
+    "subject":"SA Activity",
+    "activityDate":"2023-05-25",
+    "status":"Completed",
+    "type":"Discovery Session",
+    "priority":"Normal",
+    "productLine":"",
+    "hoursSpent":"1",
+    "contactId":"0033a00002Q1HNa",
+    "accountId":"0016000000oJSfNAAW",
+    "description":"Continued discussion around resources and pricing for Citi GFT opportunity"
+}
+
+./rhsf.py -ct 'SA Activity' '2023-05-24' 'Completed'
+ 'Meeting' 'Normal' 'Fuse' '1' '0033a00002Q1HNa' '0016000000oJSfNAAW' 'Detailed discussion around resources and pricing for Citi GFT opportunity' '0053a00000R6CWi'
