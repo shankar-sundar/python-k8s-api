@@ -1,9 +1,8 @@
 #!/usr/bin/python3
-""" Name: rhsf.py
+""" Name: rhsfUtils.py
+ This is a copy of rhsf.py from https://gitlab.consulting.redhat.com/nordicssa/salesforce-automation
  Description: Automates boring Salesforce tasks.
- Platforms: Developed on Fedora 33, tested on RHEL 8 and MacOS
- For details, see: https://gitlab.consulting.redhat.com/nordicssa/salesforce-automation
-
+ 
  A normal salesforce account at redhat.salesforce.com.
  Note: A lot of custom objects, so this doesn't work outside of Red Hat
  Authors: Magnus Glantz, sudo@redhat.com, 2020
@@ -15,18 +14,12 @@ from flask import jsonify,request
 import tarfile
 import urllib.request
 import os
-import argparse
 from subprocess import call
 from subprocess import Popen, PIPE
 import subprocess
 import sys
-import configparser
-import shutil
-import tempfile
-import hashlib
 import logging
 import platform
-import re
 
 try:
     import simplejson as json
