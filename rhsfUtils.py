@@ -10,7 +10,7 @@
           Timo Friman, tfriman@redhat.com , 2020 """
 
 # Import required modules
-from flask import jsonify,request
+from flask import jsonify,Response
 import tarfile
 import urllib.request
 import os
@@ -166,25 +166,24 @@ def find_forecast_group(product_line):
 
     return forecast_group
 
-def search_account_opportunities(account_id):
+def sf_get_task_by_id(task_id):
     """ Search for opportunities for a specific account id """
-    sfdx_call = ("sfdx force:data:soql:query -q\
-                \"SELECT Id,\
-                Name,\
-                StageName,\
-                OpportunityNumber__c,\
-                AccountId\
-                FROM Opportunity WHERE AccountId = \'"+account_id+"\'\
-                AND (NOT StageName LIKE \'Closed%\')\
-                AND (NOT StageName LIKE \'Rejected%\')\
-                ORDER BY OpportunityNumber__c\"")
+    logging.debug('entered search_task')
+    sfdx_call = ("sfdx force:data:soql:query -q "
+                 "\"SELECT "
+                 "Id,OwnerId,Owner.Name,ActivityDate,Status,WhatId,Subject,Description "
+                 "FROM Task "
+                 "WHERE Id = \'" + task_id + "\'\" "
+                 "--resultformat=json")
     logging.debug('%s', sfdx_call)
     output = subprocess.check_output([sfdx_call], cwd=sf_dir, shell=True).decode()    
-    jsonResult = {
-        'result': output
-    }
-    print(jsonResult)
-    return jsonify(jsonResult)
+    response = Response(
+        response=output,
+        status=200,
+        mimetype='application/json'
+    )
+    print(output)
+    return response
 
 def create_task(request):    
     """ Create a task """

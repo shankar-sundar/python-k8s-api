@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request 
+from flask import Flask, jsonify, request
 from flask_httpauth import HTTPTokenAuth
 # importing  all the functions defined in rhsfUtils.py
 from rhsfUtils import *
@@ -32,11 +32,11 @@ def hello():
     result = "Hello {}!!!".format(auth.current_user())    
     return jsonify({'result':result})
 
-# SFDW Read operation endpoint - List Opportunities by Account ID
-@app.route('/sfdw/listOppByAcctID/<string:id>', methods=['GET'])
+# SFDW Read operation endpoint - Get Task Details By ID
+@app.route('/sfdw/getTaskByID/<string:id>', methods=['GET'])
 @auth.login_required
-def list_opportunities_by_id(id):
-    return search_account_opportunities(id)
+def get_task_by_id(id):
+    return sf_get_task_by_id(id)
 
 # SFDW Write operation endpoint - Create Task
 @app.route('/sfdw/createTask',methods=['POST'])
