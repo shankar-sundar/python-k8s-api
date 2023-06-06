@@ -47,7 +47,7 @@ def createTask():
 
 if __name__ == '__main__':
     load_auth_tokens()
-    rhsf_init()
+    #rhsf_init()
 
     port = os.environ.get('FLASK_PORT') or 8080
     port = int(port)

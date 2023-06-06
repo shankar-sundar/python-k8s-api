@@ -92,8 +92,8 @@ def salesforce_prereq(downloads_dir, download_sfdx_file, sf_dir):
 
     if output == "" or b'redhat.com' not in output:
         print("Init: We are not authenticated. Please login via the opened web page.")
-        call("sfdx force:auth:web:login --instanceurl https://redhat.my.salesforce.com\
-              --setalias redhat", cwd=sf_dir, shell=True)
+        call("sfdx force:auth:web:login --instance-url https://redhat.my.salesforce.com\
+              --alias redhat", cwd=sf_dir, shell=True)
         call("sfdx config:set defaultusername=redhat", cwd=sf_dir, shell=True)        
     return
 
