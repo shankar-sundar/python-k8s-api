@@ -16,10 +16,13 @@ from subprocess import call
 from subprocess import Popen, PIPE
 import subprocess
 import logging
+import re
 try:
     import simplejson as json
 except ImportError:
     import json
+
+os.system("")
 
 def rhsf_init():
     # Base directories
@@ -59,46 +62,87 @@ def sf_get_task_by_id(task_id):
     print(output)
     return response
 
-def create_task(request):    
+def validateIncomingPayload(payload):
+    errorList = []
+    mandatoryFields = ['ownerId','subject','activityDate','status','type','priority','productLine','productGroup','hoursSpent','contactId','accountId','description']
+
+    for fieldName in mandatoryFields:
+        if not mandatoryCheck(payload,fieldName):
+            errorList.append("Missing "+fieldName)    
+
+    if len(errorList) > 0:
+        print("Validation failed with errors ")
+        print(errorList)
+
+    return errorList
+
+def mandatoryCheck(payload,field):    
+    if field not in payload:                
+        return False
+    else:
+        return True
+
+def create_task(request):
+    payload = request.json
+    errorList = validateIncomingPayload(payload)    
+    if len(errorList) == 0:  
+        try:      
+            return create_task_sfdx(payload)
+        except Exception as e:
+            return formResponse(callSuccessful=False,
+                                taskURL="",
+                                errors="Failed while calling sfdx "+str(e),
+                                payload=payload)
+    else:                       
+        return formResponse(callSuccessful=False,
+                            taskURL="",
+                            errors=errorList,
+                            payload=payload)
+
+def escape_ansi(line):
+    ansi_escape =re.compile(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
+    return ansi_escape.sub('', line)    
+
+def create_task_sfdx(payload):    
     """ Create a task """
 
     # Fetch forecast group based on product
-    #forecast_product_group = find_forecast_group(request.json['productLine'])
+    #forecast_product_group = find_forecast_group(payload['productLine'])694589
+
 
     sfdx_call = ("sfdx force:data:record:create -s \
-                Task -v \"OwnerId=\\\""+request.json['ownerId']+"\\\"\
-                Subject=\\\""+request.json['subject']+"\\\"\
-                ActivityDate="+request.json['activityDate']+"\
-                Status=\\\""+request.json['status']+"\\\"\
-                Type=\\\""+request.json['type']+"\\\"\
-                Priority=\\\""+request.json['priority']+"\\\"\
-                Product_Line1__c=\\\""+request.json['productLine']+"\\\"\
-                Forecast_Product_Group__c=\\\""+request.json['productGroup']+"\\\"\
-                Hours_Spent__c="+request.json['hoursSpent']+"\
-                WhoId="+request.json['contactId']+"\
-                WhatId="+request.json['accountId']+"\
-                Description=\\\""+request.json['description']+"\\\"\
+                Task -v \"OwnerId=\\\""+payload['ownerId']+"\\\"\
+                Subject=\\\""+payload['subject']+"\\\"\
+                ActivityDate="+payload['activityDate']+"\
+                Status=\\\""+payload['status']+"\\\"\
+                Type=\\\""+payload['type']+"\\\"\
+                Priority=\\\""+payload['priority']+"\\\"\
+                Product_Line1__c=\\\""+payload['productLine']+"\\\"\
+                Forecast_Product_Group__c=\\\""+payload['productGroup']+"\\\"\
+                Hours_Spent__c="+payload['hoursSpent']+"\
+                WhoId="+payload['contactId']+"\
+                WhatId="+payload['accountId']+"\
+                Description=\\\""+payload['description']+"\\\"\
                 recordTypeId=012f2000000ghxtAAA\"")
 
     print("Creating pre-sales task:")
-    print("OwnerId: "+request.json['ownerId']+"\
-         | Subject: "+request.json['subject']+"\
-         | DueDate: "+request.json['activityDate']+"\
-         | Status: "+request.json['status']+"\
-         | Type: "+request.json['type']+"\
-         | Priority: "+request.json['priority']+ "\
-         | Product Line: "+request.json['productLine']+"\
-         | Forecast Product Group: "+request.json['productGroup']+"\
-         | Hours spent: "+request.json['hoursSpent']+"\
-         | ContactId: "+request.json['contactId']+"\
-         | AccountId: "+request.json['accountId']+"\
-         | Description/comment: "+request.json['description'])
+    print("OwnerId: "+payload['ownerId']+"\
+         | Subject: "+payload['subject']+"\
+         | DueDate: "+payload['activityDate']+"\
+         | Status: "+payload['status']+"\
+         | Type: "+payload['type']+"\
+         | Priority: "+payload['priority']+ "\
+         | Product Line: "+payload['productLine']+"\
+         | Forecast Product Group: "+payload['productGroup']+"\
+         | Hours spent: "+payload['hoursSpent']+"\
+         | ContactId: "+payload['contactId']+"\
+         | AccountId: "+payload['accountId']+"\
+         | Description/comment: "+payload['description'])
     logging.debug('%s', sfdx_call)
 
     the_process = Popen(sfdx_call, cwd=sf_dir, shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE)
     output, err = the_process.communicate(b"input data")
-    return_code = the_process.returncode
-    resultStr = ""
+    return_code = the_process.returncode    
     if return_code == 0:
         # Output send as bytes, decode turns it to characters
         # which we then can assemble to a string.
@@ -108,15 +152,46 @@ def create_task(request):
         output_string = ''.join(ascii_output)
         list_of_words = output_string.split()
         task_id = list_of_words[list_of_words.index('record:') + 1].replace('.', '')
-        print('Successfully created task: https://redhat.my.salesforce.com/',task_id,sep='')
-        resultStr ='Successfully created task: https://redhat.my.salesforce.com/'+task_id
+        print('Successfully created task: https://redhat.my.salesforce.com/',task_id,sep='')        
+        return formResponse(callSuccessful=True,
+                            taskURL="https://redhat.my.salesforce.com/"+task_id,
+                            errors="",
+                            payload="")
     else:
-        err_ascii = err.decode('utf-8')
+        err_ascii = escape_ansi(err.decode('utf-8'))
         error_output = ''.join(err_ascii)
-        print("Failed to create task:", error_output)
-        resultStr = 'Failed to create task:'+error_output
-    apiResult = {
-        'resultCode': return_code,
-        'result': resultStr
-    }
-    return jsonify(apiResult)
+        print(error_output)        
+        readableOut = ' '.join(re.findall(r'\w+', error_output))
+        return formResponse(callSuccessful=False,
+                            taskURL="",
+                            errors="Failed while creating task in SF - "+readableOut,
+                            payload=payload)    
+        
+
+def formResponse(callSuccessful,taskURL,errors,payload):        
+    apiResult = {}
+    status = 200   
+    if not callSuccessful:
+        status = 500
+        apiResult = {            
+            'result': 'failed',         
+            'taskURL': '',
+            'errors': errors,
+            'payload':payload
+        }    
+    else:
+        apiResult = {            
+            'result': 'success',         
+            'taskURL': taskURL,
+            'errors': '',
+            'payload':''
+        }    
+
+    print("api response to client")
+    print(apiResult)
+
+    return Response(
+            response=json.dumps(apiResult),
+            status=status,
+            mimetype='application/json'
+        )
