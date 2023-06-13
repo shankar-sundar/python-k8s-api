@@ -38,6 +38,20 @@ def hello():
 def get_task_by_id(id):
     return sf_get_task_by_id(id)
 
+# SFDW Read operation endpoint - Get Opportunity Details By ID
+@app.route('/sfdw/getOpportunityByID/<string:id>', methods=['GET'])
+@auth.login_required
+def get_opportunity_by_id(id):
+    return sf_get_opportunity(opportunity_id=id,
+                              opportunity_number="")
+
+# SFDW Read operation endpoint - Get Opportunity Details By Opp Number
+@app.route('/sfdw/getOpportunityByNumber/<string:oppNumber>', methods=['GET'])
+@auth.login_required
+def get_opportunity_by_number(oppNumber):
+    return sf_get_opportunity(opportunity_id="",
+                              opportunity_number=oppNumber)
+
 # SFDW Write operation endpoint - Create Task
 @app.route('/sfdw/createTask',methods=['POST'])
 @auth.login_required

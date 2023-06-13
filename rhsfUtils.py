@@ -44,7 +44,7 @@ def rhsf_init():
     os.chdir(sf_dir)
 
 def sf_get_task_by_id(task_id):
-    """ Search for opportunities for a specific account id """
+    """ Search for task by id """
     logging.debug('entered search_task')
     sfdx_call = ("sfdx data:query -q "
                  "\"SELECT "
@@ -52,6 +52,35 @@ def sf_get_task_by_id(task_id):
                  "FROM Task "
                  "WHERE Id = \'" + task_id + "\'\" "
                  "-r json")
+    logging.debug('%s', sfdx_call)
+    output = subprocess.check_output([sfdx_call], cwd=sf_dir, shell=True).decode()    
+    response = Response(
+        response=output,
+        status=200,
+        mimetype='application/json'
+    )
+    print(output)
+    return response
+
+def sf_get_opportunity(opportunity_id,opportunity_number):
+    """ Search for opportunities for a given id """
+    logging.debug('entered search_opportunity')
+    whereClause = "WHERE "
+    if opportunity_id == "" and opportunity_number == "":
+        return Response(response={
+            "result":"failed",
+            "errors":"Missing opportunity ID or number to find opportunity"
+        },
+        status=500,
+        mimetype='application/json')
+    
+    if opportunity_id == "":
+        whereClause += "opportunitynumber__c = \'"+opportunity_number+ "\'\" "
+    else:
+        whereClause += "Id = \'" + opportunity_id + "\'\" "
+
+    sfdx_query = "sfdx data:query -q "+"\"SELECT "+"Id,Name,opportunitynumber__c,StageName,AccountId,closedate,Amount "+ "FROM Opportunity "+whereClause+" -r json"        
+    sfdx_call = (sfdx_query)
     logging.debug('%s', sfdx_call)
     output = subprocess.check_output([sfdx_call], cwd=sf_dir, shell=True).decode()    
     response = Response(
