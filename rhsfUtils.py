@@ -91,12 +91,12 @@ def sf_get_opportunity(opportunity_id,opportunity_number):
     print(output)
     return response
 
-def validateIncomingPayload(payload):
+def validate_incoming_payload(payload):
     errorList = []
     mandatoryFields = ['ownerId','subject','activityDate','status','type','priority','productLine','productGroup','hoursSpent','contactId','accountId','description']
 
     for fieldName in mandatoryFields:
-        if not mandatoryCheck(payload,fieldName):
+        if not mandatory_check(payload,fieldName):
             errorList.append("Missing "+fieldName)    
 
     if len(errorList) > 0:
@@ -105,7 +105,7 @@ def validateIncomingPayload(payload):
 
     return errorList
 
-def mandatoryCheck(payload,field):    
+def mandatory_check(payload,field):    
     if field not in payload:                
         return False
     else:
@@ -113,7 +113,7 @@ def mandatoryCheck(payload,field):
 
 def create_task(request):
     payload = request.json
-    errorList = validateIncomingPayload(payload)    
+    errorList = validate_incoming_payload(payload)    
     if len(errorList) == 0:  
         try:      
             return create_task_sfdx(payload)
