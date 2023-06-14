@@ -118,12 +118,12 @@ def create_task(request):
         try:      
             return create_task_sfdx(payload)
         except Exception as e:
-            return formResponse(callSuccessful=False,
+            return form_response(callSuccessful=False,
                                 taskURL="",
                                 errors="Failed while calling sfdx "+str(e),
                                 payload=payload)
     else:                       
-        return formResponse(callSuccessful=False,
+        return form_response(callSuccessful=False,
                             taskURL="",
                             errors=errorList,
                             payload=payload)
@@ -182,7 +182,7 @@ def create_task_sfdx(payload):
         list_of_words = output_string.split()
         task_id = list_of_words[list_of_words.index('record:') + 1].replace('.', '')
         print('Successfully created task: https://redhat.my.salesforce.com/',task_id,sep='')        
-        return formResponse(callSuccessful=True,
+        return form_response(callSuccessful=True,
                             taskURL="https://redhat.my.salesforce.com/"+task_id,
                             errors="",
                             payload="")
@@ -191,13 +191,12 @@ def create_task_sfdx(payload):
         error_output = ''.join(err_ascii)
         print(error_output)        
         readableOut = ' '.join(re.findall(r'\w+', error_output))
-        return formResponse(callSuccessful=False,
+        return form_response(callSuccessful=False,
                             taskURL="",
                             errors="Failed while creating task in SF - "+readableOut,
                             payload=payload)    
         
-
-def formResponse(callSuccessful,taskURL,errors,payload):        
+def form_response(callSuccessful,taskURL,errors,payload):        
     apiResult = {}
     status = 200   
     if not callSuccessful:
