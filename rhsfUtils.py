@@ -48,7 +48,7 @@ def sf_get_task_by_id(task_id):
     logging.debug('entered search_task')
     sfdx_call = ("sfdx data:query -q "
                  "\"SELECT "
-                 "Id,OwnerId,Owner.Name,ActivityDate,Status,WhatId,Subject,Description "
+                 "Id,OwnerId,Owner.Name,ActivityDate,Status,WhatId,Subject,Description,Type,TypeDetails "
                  "FROM Task "
                  "WHERE Id = \'" + task_id + "\'\" "
                  "-r json")
@@ -146,7 +146,7 @@ def create_task_sfdx(payload):
                 Status=\\\""+payload['status']+"\\\"\
                 Type=\\\""+payload['type']+"\\\"\
                 Priority=\\\""+payload['priority']+"\\\"\
-                Product_Line1__c=\\\""+payload['productLine']+"\\\"\
+                Product_Line__c=\\\""+payload['productLine']+"\\\"\
                 Forecast_Product_Group__c=\\\""+payload['productGroup']+"\\\"\
                 Hours_Spent__c="+payload['hoursSpent']+"\
                 WhoId="+payload['contactId']+"\
