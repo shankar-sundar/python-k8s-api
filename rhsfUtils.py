@@ -147,6 +147,7 @@ def create_task_sfdx(payload):
                 Type=\\\""+payload['type']+"\\\"\
                 Priority=\\\""+payload['priority']+"\\\"\
                 Product_Line__c=\\\""+payload['productLine']+"\\\"\
+                Product_Line1__c=\\\""+payload['productLine']+"\\\"\
                 Forecast_Product_Group__c=\\\""+payload['productGroup']+"\\\"\
                 Hours_Spent__c="+payload['hoursSpent']+"\
                 WhoId="+payload['contactId']+"\
@@ -162,6 +163,7 @@ def create_task_sfdx(payload):
          | Type: "+payload['type']+"\
          | Priority: "+payload['priority']+ "\
          | Product Line: "+payload['productLine']+"\
+         | Product Line1: "+payload['productLine']+"\
          | Forecast Product Group: "+payload['productGroup']+"\
          | Hours spent: "+payload['hoursSpent']+"\
          | ContactId: "+payload['contactId']+"\
