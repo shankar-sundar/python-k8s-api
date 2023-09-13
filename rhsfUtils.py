@@ -48,7 +48,7 @@ def sf_get_task_by_id(task_id):
     logging.debug('entered search_task')
     sfdx_call = ("sfdx data:query -q "
                  "\"SELECT "
-                 "Id,OwnerId,Owner.Name,ActivityDate,Status,WhatId,Subject,Description,Type,TypeDetails "
+                 "Id,OwnerId,Owner.Name,ActivityDate,Status,WhatId,Subject,Description,Type "
                  "FROM Task "
                  "WHERE Id = \'" + task_id + "\'\" "
                  "-r json")
